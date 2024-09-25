@@ -1,9 +1,8 @@
 # SQL
 
-LinkedIn Learning assignments
-
-SQL Essential Training: May, September 2024 <br>
-Learning SQL Programming: June 2024
+LinkedIn Learning Courses Completed:
+* SQL Essential Training: May, September 2024
+* Learning SQL Programming: June 2024
 
 ## Overview
 
