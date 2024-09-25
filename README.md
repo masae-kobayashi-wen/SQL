@@ -6,5 +6,5 @@ LinkedIn Learning Courses Completed:
 
 ## Overview
 
-This collection features SQLite coding assignments I completed as part of LinkedIn Learning courses in 2024.
+This collection features SQLite coding assignments I completed as part of LinkedIn Learning courses in 2024, including the original database files, project files, and SQL files.
 
