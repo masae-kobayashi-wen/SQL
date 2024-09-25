@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/mkoba/Documents/Calbright College related/Data Anlysis Track/Competency 8 - Intermediate SQL Queries/DA 8 Challenge/quizdata.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1711"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,6:mainpeople"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="people" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="76"/><column index="2" value="78"/><column index="3" value="78"/><column index="4" value="106"/><column index="5" value="82"/><column index="6" value="90"/><column index="7" value="82"/><column index="8" value="96"/><column index="9" value="73"/><column index="10" value="40"/><column index="11" value="223"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Ch1.Q">/*
+Created By: Masae Wen
+Create Date: 6/25/2024
+Description: Chapter 1- Code Challenge: Retrieve data from the database
+
+Task:
+- Create list of participant in Colorado (state_code CO) with the columns
+team, shirt_or_hat, first_name, last_name
+- Organize the list so that the participants are sorted by their team name,
+then by whether they want shirt or hat, and finally by their last name
+- Use descending order for the last name and ascending order for the other sorting fields
+*/
+
+SELECT team, shirt_or_hat, first_name, last_name
+FROM people
+WHERE state_code = 'CO'
+ORDER BY team, shirt_or_hat, last_name DESC;
+</sql><sql name="Ch2.1">/*
+Created By: Masae Wen
+Create Date: 6/25/2024
+Description: Grouping Results
+*/
+
+-- Wrong: Only returns one row with the total number of first name records
+SELECT first_name, count(first_name)
+FROM people;
+
+-- Correct: Returns the count of each first name
+SELECT first_name, count(first_name)
+FROM people
+GROUP BY first_name;
+
+-- Note: No error message does not mean the results actually make sense. Need to check if the results make sense.</sql><sql name="Ch2.2">/*
+Created By: Masae Wen
+Create Date: 6/25/2024
+Description: Grouping Results
+*/
+
+SELECT state_code, quiz_points, COUNT(quiz_points)
+FROM people
+GROUP BY state_code, quiz_points;
+
+-- Note: Need to group by two fields, state_code and then quiz_points to get meaningful results</sql><sql name="Ch2.Q">/*
+Created By: Masae Wen
+Create Date: 6/25/2024
+Description: Chapter 2 - Code Challenge: Practice with JOINs
+
+Task: Write a query that shows the count of team members in each region.
+*/
+
+SELECT s.region, p.team, COUNT(p.team)
+FROM states AS s
+JOIN people AS p 
+	ON s.state_abbrev = p.state_code
+GROUP BY s.region, p.team;
+
+</sql><sql name="Ch3.1">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Math in SQL
+*/
+
+SELECT team, COUNT(*), SUM(quiz_points), SUM(quiz_points)/COUNT(*), AVG(quiz_points)
+FROM people
+GROUP BY team;
+
+-- SUM(quiz_points)/COUNT(*): returns an integer because integer/integer
+-- AVG(quiz_points): returns a float with decimals</sql><sql name="Ch3.2">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Compound Select
+*/
+
+-- Wrong: Returns only the first person with the Max quiz point
+SELECT first_name, last_name, MAX(quiz_points)
+FROM people; 
+
+-- Correct: Returns the list of people with the max quiz point
+SELECT first_name, last_name, quiz_points
+FROM people
+WHERE quiz_points = (SELECT MAX(quiz_points) FROM people); -- WHERE quiz_points = MAX(quiz_points) gives error message. Need subselect! </sql><sql name="Ch3.3">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Compound Select
+*/
+
+-- When you don't know the state_code/abbreviation for Minnesota
+SELECT *
+FROM people
+WHERE state_code = (
+	SELECT state_abbrev FROM states WHERE state_name = 'Minnesota'
+);</sql><sql name="Ch3.4">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Transforming data
+*/
+
+-- Returns 1st to 4th characters of a string
+SELECT first_name, SUBSTR(last_name, 1, 4)
+From people;
+
+-- Returns last two characters of a string
+SELECT first_name, SUBSTR(last_name, -2) -- Negative number: counts from the end instead of the beginning
+From people;
+
+-- Returns first names replaced 'a' with '-'
+SELECT REPLACE(first_name, 'a', '-')
+From people;
+
+</sql><sql name="Ch3.5">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Transforming data
+*/
+
+-- Returns quiz points in ascending order, except 100 shows up first.
+SELECT quiz_points
+FROM people
+ORDER BY CAST(quiz_points AS CHAR); -- 99 &gt; 100 for string comparison because the first character (9 &gt; 1)
+
+-- Returns quiz points in ascending order
+SELECT quiz_points
+FROM people
+ORDER BY quiz_points;</sql><sql name="Ch3.6">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Creating aliases with AS
+*/
+
+SELECT first_name AS firstname, UPPER(last_name) AS surname
+FROM people
+WHERE firstname = 'Laura'; -- Start using aliases in the statements once created</sql><sql name="Ch3.Q">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Chapter 3 - Code Challenge: State score metrics
+
+Task: 
+Write a query that returns the maximum and average scores for each state,
+along with the state's name, sorted from highest to lowest average score.
+*/
+
+SELECT s.state_name AS STATE, MAX(p.quiz_points) AS MAXPOINTS, AVG(p.quiz_points) AS AVGPOINTS
+FROM people AS p
+JOIN states AS s
+	ON p.state_code = s.state_abbrev
+GROUP BY STATE
+ORDER BY AVGPOINTS DESC;
+</sql><sql name="Ch4.1">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Add data to a table
+*/
+
+-- Add one new row
+INSERT INTO people 
+(first_name, last_name, state_code, city, shirt_or_hat)
+VALUES
+('Mary', 'Hamilton', 'OR', 'Portland', 'hat'); </sql><sql name="Ch4.2">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Add data to a table
+*/
+
+-- Add three new rows
+INSERT INTO people
+(first_name, last_name)
+VALUES
+('George', 'White'),
+('Jenn', 'Smith'),
+('Carol', NULL); -- Need to specify an empty entry with NULL (or 0, etc.) as a placeholder, or will get an error message.</sql><sql name="Ch4.3">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Modify data in a table
+*/
+
+-- Should check if the condition used here is unique
+-- Is there only one person with first name 'Carlos'?
+SELECT first_name FROM people WHERE first_name = 'Carlos';
+
+-- Wrong: Update multiple records by mistake
+UPDATE people
+SET last_name = 'Morrison'
+WHERE first_name = 'Carlos';
+
+</sql><sql name="Ch4.4">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Modify data in a table
+*/
+
+-- If the incorrect entry is known
+UPDATE people
+SET last_name = 'Morrison'
+WHERE last_name = 'Morrrison';
+
+-- Should check if the condition used here is unique
+-- Is there only one person with first name 'Carlos' and city 'Houston'?
+SELECT first_name 
+FROM people 
+WHERE first_name = 'Carlos' AND city = 'Houston';
+
+-- Correct2: If the incorrect entry is unknown, add multiple conditions to achieve a unique result
+UPDATE people
+SET last_name = 'Morrison'
+WHERE first_name = 'Carlos' AND city = 'Houston';
+</sql><sql name="Ch4.5">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Modify data in a table
+*/
+
+-- Should check if the condition used here is unique
+-- Is there only one person with first name 'Carlos' and city 'Houston'?
+SELECT first_name 
+FROM people 
+WHERE first_name = 'Carlos' AND city = 'Houston';
+
+-- If the incorrect entry is unknown, add multiple conditions to achieve a unique result
+UPDATE people
+SET last_name = 'Morrison'
+WHERE first_name = 'Carlos' AND city = 'Houston';
+</sql><sql name="Ch4.6">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Modify data in a table
+*/
+
+-- Check the unique identifier
+SELECT * FROM people WHERE id_number = 175;
+
+-- The best way is to use the unique identifier
+UPDATE people
+SET last_name = 'Morrison'
+WHERE id_number = 175;
+</sql><sql name="Ch4.7">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Modify data in a table
+*/
+
+-- Check the output first before making multiple updates at once
+SELECT * FROM people WHERE company = 'Fisher LLC';
+
+-- Update two records at once
+UPDATE people SET company = 'Megacorp Inc'
+WHERE company = 'Fisher LLC'
+</sql><sql name="Ch4.8">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Removing data from a table
+*/
+
+-- Delete all the records form the table people
+DELETE FROM people;
+
+-- Check the data to delete first
+SELECT * FROM people WHERE id_number = 1001;
+
+-- Use the unique identifier to delete
+DELETE FROM people WHERE id_number = 1001;
+
+-- Check the data to delete first
+SELECT * FROM people WHERE quiz_points IS NULL; 
+
+-- Delete records with NULL
+DELETE FROM people WHERE quiz_points IS NULL;</sql><sql name="Ch4.Q">/*
+Created By: Masae Wen
+Create Date: 6/26/2024
+Description: Chapter 4 - Code Challenge: Identifying the correct record
+
+Task: 
+Create a SQL statement that shows the id_number and other confirmatory information
+for Alice, from Florida, who is a member of the Cobras.
+*/
+
+SELECT 
+	id_number, 
+	first_name, 
+	state_code, team 
+FROM 
+	people 
+WHERE 
+	first_name = 'Alice' AND 
+	state_code = 'FL' AND 
+	team LIKE '%Cobras%';</sql><sql name="E_Q1">/*
+Created By: Masae Wen
+Create Date: 06/27/2024
+Description: DA C8 Summative Assessment Challenge - Q1
+
+Task:
+Write a SQL query that retrieves a list of all people including 
+their id number, first name, last name, age, and state code.
+*/
+
+SELECT id_number, first_name, last_name, age, state_code
+FROM people;
+</sql><sql name="E_Q2">/*
+Created By: Masae Wen
+Create Date: 06/27/2024
+Description: DA C8 Summative Assessment Challenge - Q2
+
+Task:
+Write a SQL query that retrieves a list of all people 
+including their id number, first name, last name, age, and state code who have a state code of CA. 
+How many rows of data are in the result?
+(Hint: Mouse over the table icon in the lower right corner of the page to see the number of rows)?​
+*/
+
+SELECT id_number, first_name, last_name, age, state_code
+FROM people
+WHERE state_code = 'CA';</sql><sql name="E_Q3">/*
+Created By: Masae Wen
+Create Date: 06/27/2024
+Description: DA C8 Summative Assessment Challenge - Q3
+
+Task:
+Write a SQL query that finds the first name, last name, and age 
+of the oldest person in the people table. 
+Is it just one person, or are there actually multiple people who are the same age?
+*/
+
+SELECT first_name, last_name, age
+FROM people
+WHERE age = (SELECT MAX(age) FROM people);
+
+--initial check
+SELECT first_name, last_name, age
+FROM people
+ORDER BY age DESC;
+
+--final check
+SELECT first_name, last_name, age
+FROM people
+WHERE age = 60;</sql><sql name="E_Q4">/*
+Created By: Masae Wen
+Create Date: 06/27/2024
+Description: DA C8 Summative Assessment Challenge - Q4
+
+Task:
+Write a SQL query that lists the city, state code, and state name for every record in the people table?
+(Hint: You’re going to need to use one of the JOIN types to get the state name from the states table)
+*/
+
+SELECT p.city, p.state_code, s.state_name 
+FROM people AS p
+LEFT JOIN states AS s
+	ON p.state_code = s.state_abbrev;
+
+/*	
+--Initial screen: any difference in INNER and LEFT JOIN (left=people)?
+SELECT *
+FROM people AS p
+LEFT JOIN states AS s
+	ON p.state_code = s.state_abbrev; -- returns 1000 rows
+
+SELECT *
+FROM people AS p
+JOIN states AS s
+	ON p.state_code = s.state_abbrev; -- returns 1000 rows
+*/	
+</sql><sql name="E_Q5">/*
+Created By: Masae Wen
+Create Date: 06/27/2024
+Description: DA C8 Summative Assessment Challenge - Q5
+
+Task:
+Write a SQL query that finds the average quiz points value for people from the city of Los Angeles.
+*/
+
+SELECT city, AVG(quiz_points)
+FROM people
+WHERE city = 'Los Angeles'
+GROUP BY city; -- GROUP BY need to be after WHERE!
+
+/*
+-- Initial check 
+SELECT first_name, last_name, quiz_points, city 
+FROM people
+WHERE city = 'Los Angeles';
+*/
+
+</sql><current_tab id="20"/></tab_sql></sqlb_project>
